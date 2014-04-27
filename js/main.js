@@ -4,10 +4,11 @@ var game = new Phaser.Game(
   );
 
 var platforms;
-var key_items;
+var memories;
 var player;
 var score = 0;
 var scoreText;
+var finished_text;
 
 function preload() {
   game.load.image('sky', 'assets/sky.png');
@@ -33,19 +34,19 @@ function create() {
   //  We will enable physics for any object that is created in this group
   platforms.enableBody = true;
 
+  memories = game.add.group();
 
   load_level(1);
 
-
   // The player and its settings
-  player = game.add.sprite(32, game.world.height - 150, 'dude');
+  player = game.add.sprite(416, game.world.height - 60, 'dude');
 
   //  We need to enable physics on the player
   game.physics.arcade.enable(player);
 
   //  Player physics properties. Give the little guy a slight bounce.
   player.body.bounce.y = 0.2;
-  player.body.gravity.y = 5;
+  player.body.gravity.y = 3;
   player.body.collideWorldBounds = true;
 
   //  Our two animations, walking left and right.
@@ -53,13 +54,21 @@ function create() {
   player.animations.add('right', [5, 6, 7, 8], 10, true);
 
   scoreText = game.add.text(
-    16, 16, 'score: 0',
+    16, 16, 'Memories: 0',
    { fontSize: '32px', fill: '#000' }
+  );
+
+  finished_text = game.add.text(
+    game.world.width/2, game.world.height/2, '',
+    { fontSize: '32px', fill: '#fff' }
   );
 }
 
 function update() {
+  //  Collide the player and the stars with the platforms
   game.physics.arcade.collide(player, platforms);
+  game.physics.arcade.overlap(player, memories, collect_memories, null, this);
+
   //  Reset the players velocity (movement)
   if(player.body.velocity.x > -1 && player.body.velocity.x <= 0){
     player.body.velocity.x = 0;
@@ -74,7 +83,7 @@ function update() {
   {
     //  Move to the left
     player.body.velocity.x = -25;
-    player.body.acceleration.x = 2;
+    player.body.acceleration.x = 3;
 
     player.animations.play('left');
   }
@@ -82,24 +91,49 @@ function update() {
   {
     //  Move to the right
     player.body.velocity.x = 25;
-    player.body.acceleration.x = -2;
+    player.body.acceleration.x = -3;
 
     player.animations.play('right');
   }
-  else
+
+
+  if (cursors.up.isDown)
+  {
+    player.body.velocity.y = -25;
+  }
+  else if (cursors.down.isDown)
+  {
+    player.body.velocity.y = 25;
+  }
+
+  if(cursors.down.isUp && cursors.up.isUp &&
+    cursors.left.isUp && cursors.right.isUp)
   {
     //  Stand still
     player.animations.stop();
 
     player.frame = 4;
   }
+}
 
-  //  Allow the player to jump if they are touching the ground.
-  if (cursors.up.isDown)// && player.body.touching.down)
-  {
-    player.body.velocity.y = -25;
+function collect_memories (player, item) {
+  // Removes the star from the screen
+  item.kill();
+
+  //  Add and update the score
+  score += 1;
+  scoreText.text = 'Memories: ' + score;
+
+  memories_collected();
+}
+
+function memories_collected(){
+  if(memories.countLiving() == 0){
+    finished_text.text = 'All memories retrieved...';
   }
 }
+
+
 function load_level(index){
   var padding_x=160;
   var padding_y=120;
@@ -145,7 +179,7 @@ function load_level(index){
     ledge = platforms.create(padding_x * 4, padding_y, 'wall_up');
     ledge.body.immovable = true;
 
-    ledge = platforms.create(padding_x, padding_y * 3, 'wall_up');
+    ledge = platforms.create(padding_x * 2, padding_y * 3, 'wall_up');
     ledge.body.immovable = true;
 
     ledge = platforms.create(padding_x * 4, padding_y * 3, 'wall_up');
@@ -153,5 +187,20 @@ function load_level(index){
 
     ledge = platforms.create(padding_x * 3, padding_y * 4, 'wall_up');
     ledge.body.immovable = true;
+
+
+    // Place itens to wake up
+    var item = memories.create(380, 420, 'star');
+    game.physics.arcade.enable(item);
+    item.body.gravity.y = 0;
+
+    item = memories.create(220, 180, 'star');
+    game.physics.arcade.enable(item);
+    item.body.gravity.y = 0;
+
+    item = memories.create(580, 180, 'star');
+    game.physics.arcade.enable(item);
+    item.body.gravity.y = 0;
+
   }
 }
