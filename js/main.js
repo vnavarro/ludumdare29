@@ -11,11 +11,13 @@ var scoreText;
 var finished_text;
 
 function preload() {
-  game.load.image('sky', 'assets/sky.png');
-  game.load.image('wall', 'assets/platform160.png');
-  game.load.image('wall_up', 'assets/platform160_I.png');
-  game.load.image('star', 'assets/star.png');
-  game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+  game.load.image('bg', 'assets/deep_bg.png');
+  game.load.image('wall', 'assets/wall160x16.png');
+  game.load.image('wall_up', 'assets/wall16x160.png');
+  game.load.image('watch', 'assets/watch.png');
+  game.load.image('doll', 'assets/doll.png');
+  game.load.image('cupcake', 'assets/cupcake.png');
+  game.load.spritesheet('girl', 'assets/girl.png', 41, 48);
 
   cursors = game.input.keyboard.createCursorKeys();
 }
@@ -26,7 +28,7 @@ function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
 
   //  A simple background for our game
-  game.add.sprite(0, 0, 'sky');
+  game.add.sprite(0, 0, 'bg');
 
   //  The platforms group contains the ground and the 2 ledges we can jump on
   platforms = game.add.group();
@@ -39,7 +41,7 @@ function create() {
   load_level(1);
 
   // The player and its settings
-  player = game.add.sprite(416, game.world.height - 60, 'dude');
+  player = game.add.sprite(416, game.world.height - 60, 'girl');
 
   //  We need to enable physics on the player
   game.physics.arcade.enable(player);
@@ -50,12 +52,12 @@ function create() {
   player.body.collideWorldBounds = true;
 
   //  Our two animations, walking left and right.
-  player.animations.add('left', [0, 1, 2, 3], 10, true);
-  player.animations.add('right', [5, 6, 7, 8], 10, true);
+  // player.animations.add('left', [0, 1, 2, 3], 10, true);
+  // player.animations.add('right', [5, 6, 7, 8], 10, true);
 
   scoreText = game.add.text(
     16, 16, 'Memories: 0',
-   { fontSize: '32px', fill: '#000' }
+   { fontSize: '20px', fill: '#fff' }
   );
 
   finished_text = game.add.text(
@@ -85,7 +87,7 @@ function update() {
     player.body.velocity.x = -25;
     player.body.acceleration.x = 3;
 
-    player.animations.play('left');
+    // player.animations.play('left');
   }
   else if (cursors.right.isDown)
   {
@@ -93,7 +95,7 @@ function update() {
     player.body.velocity.x = 25;
     player.body.acceleration.x = -3;
 
-    player.animations.play('right');
+    // player.animations.play('right');
   }
 
 
@@ -190,15 +192,15 @@ function load_level(index){
 
 
     // Place itens to wake up
-    var item = memories.create(380, 420, 'star');
+    var item = memories.create(380, 420, 'cupcake');
     game.physics.arcade.enable(item);
     item.body.gravity.y = 0;
 
-    item = memories.create(220, 180, 'star');
+    item = memories.create(220, 180, 'doll');
     game.physics.arcade.enable(item);
     item.body.gravity.y = 0;
 
-    item = memories.create(580, 180, 'star');
+    item = memories.create(580, 180, 'watch');
     game.physics.arcade.enable(item);
     item.body.gravity.y = 0;
 
